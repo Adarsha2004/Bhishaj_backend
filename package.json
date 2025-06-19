@@ -23,6 +23,7 @@
   "homepage": "https://github.com/Adarsha2004/Bhishaj_backend#readme",
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
+    "@prisma/client": "^6.10.1",
     "better-auth": "^1.2.9",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",

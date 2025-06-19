@@ -162,3 +162,6 @@ common/temp/
 common/autoinstallers/**/node_modules
 common/autoinstallers/**/temp
 .rush/
+/src/generated/prisma
+
+/src/generated/prisma
