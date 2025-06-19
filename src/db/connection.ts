@@ -1,6 +1,3 @@
 import 'dotenv/config'; // Add this line at the top
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-
-const sql = neon(process.env.DATABASE_URL!);
-export const db = drizzle({ client: sql });
+import { PrismaClient } from '@prisma/client/default';
+const prisma = new PrismaClient();
