@@ -23,6 +23,10 @@ model User {
   updatedAt     DateTime
   sessions      Session[]
   accounts      Account[]
+  
+  // Medication-related relations
+  medications   Medication[]
+  reminders     Reminder[]
 
   @@unique([email])
   @@map("user")
@@ -71,4 +75,103 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Medication {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  dosage      Int      @default(1)
+  unit        String   @default("pill") // pill, tablet, ml, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminders Reminder[]
+  
+  @@map("medications")
+}
+
+model Reminder {
+  id              String        @id @default(cuid())
+  isActive        Boolean       @default(true)
+  dosage          Int           @default(1)
+  mealTiming      MealTiming    @default(BEFORE_MEAL)
+  notificationTime String       // HH:MM format (e.g., "10:00")
+  duration        Int           @default(30) // Duration in days
+  isEveryday      Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  startDate       DateTime      @default(now())
+  endDate         DateTime?
+  
+  // Relations
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicationId String
+  medication   Medication  @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  
+  // Schedule and notifications
+  schedules    ReminderSchedule[]
+  notifications ReminderLog[]
+  
+  @@map("reminders")
+}
+
+model ReminderSchedule {
+  id        String    @id @default(cuid())
+  dayOfWeek DayOfWeek
+  isActive  Boolean   @default(true)
+  
+  reminderId String
+  reminder   Reminder @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+  
+  @@unique([reminderId, dayOfWeek])
+  @@map("reminder_schedules")
+}
+
+model ReminderLog {
+  id          String           @id @default(cuid())
+  scheduledAt DateTime
+  status      NotificationStatus
+  takenAt     DateTime?
+  notes       String?
+  createdAt   DateTime         @default(now())
+  
+  reminderId String
+  reminder   Reminder @relation(fields: [reminderId], references: [id], onDelete: Cascade)
+  
+  @@map("reminder_logs")
+}
+
+// Enums
+enum MealTiming {
+  BEFORE_MEAL
+  WITH_MEAL
+  AFTER_MEAL
+  
+  @@map("meal_timing")
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+  
+  @@map("day_of_week")
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  TAKEN
+  MISSED
+  SNOOZED
+  
+  @@map("notification_status")
 }
